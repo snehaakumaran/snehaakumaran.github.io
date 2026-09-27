@@ -22,8 +22,8 @@ export function Hero() {
             ))}
           </ul>
           <div className="hero-ctas">
-            <Magnetic className="btn btn-solid" href="#projects">
-              Explore the lab <span aria-hidden="true">↓</span>
+            <Magnetic className="btn btn-solid" href="#bi">
+              Explore dashboards <span aria-hidden="true">↓</span>
             </Magnetic>
             <Magnetic className="btn btn-line" href={links.linkedin} target="_blank" rel="noreferrer">
               View LinkedIn <span aria-hidden="true">↗</span>

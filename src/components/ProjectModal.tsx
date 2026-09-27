@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
-import { kindLabel, links, projects } from '../content';
+import { kindLabel, links, projects, vizzes } from '../content';
 import { useProjects } from './projectsContext';
 import { KindGlyph } from './KindGlyph';
 
 /** Project detail. Shows only documented facts; undocumented fields are omitted. */
 export function ProjectModal() {
-  const { openId, close } = useProjects();
+  const { openId, close, openViz } = useProjects();
   const ref = useRef<HTMLDialogElement>(null);
   const p = projects.find((x) => x.id === openId) ?? null;
+  const viz = p?.viz ? vizzes.find((v) => v.id === p.viz) : undefined;
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
@@ -50,9 +51,14 @@ export function ProjectModal() {
               </dd>
             </div>
           </dl>
-          {p.links && p.links.length > 0 && (
+          {((p.links && p.links.length > 0) || viz) && (
             <div className="modal-links">
-              {p.links.map((l) => (
+              {viz && (
+                <button type="button" className="btn btn-solid mag" onClick={() => openViz(viz.id)} aria-haspopup="dialog">
+                  View interactive dashboard <span aria-hidden="true">→</span>
+                </button>
+              )}
+              {p.links?.map((l) => (
                 <a key={l.href} className="btn btn-line mag" href={l.href} target="_blank" rel="noreferrer">
                   {l.label} <span aria-hidden="true">↗</span>
                 </a>

@@ -15,6 +15,7 @@ import { Academic } from './sections/Academic';
 import { Certifications } from './sections/Certifications';
 import { Contact } from './sections/Contact';
 import { ProjectModal } from './components/ProjectModal';
+import { VizViewer } from './components/VizViewer';
 import { ProjectsProvider } from './components/projectsContext';
 
 // three.js + react-three-fiber load as a separate chunk, only when WebGL works.
@@ -68,6 +69,7 @@ export default function App() {
         <Contact />
       </main>
       <ProjectModal />
+      <VizViewer />
     </ProjectsProvider>
   );
 }

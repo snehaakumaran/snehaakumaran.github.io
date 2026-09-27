@@ -20,7 +20,7 @@ export const profile = {
   role: 'Data Analyst',
   headline: 'Data Analyst at Clearpath Global | Data Analytics | Machine Learning and AI',
   statement: 'Turning Data Into Decisions.',
-  focus: ['Data Analytics', 'Data Visualization', 'Machine Learning', 'Business Intelligence'],
+  focus: ['Data Analytics', 'Business Intelligence', 'Tableau', 'Data Visualization', 'Machine Learning'],
   // City-level location is on LinkedIn (Aldie, Virginia); the site shows the state.
   location: 'Virginia, United States',
   current: { role: 'Data Analyst', org: 'Clearpath Global', since: 'June 2024' },
@@ -113,6 +113,8 @@ export type Project = {
   task?: string;
   tech: string[];
   links?: { label: string; href: string }[];
+  /** id of the matching published Tableau Public visualization, if any. */
+  viz?: string;
 };
 
 const repo = (name: string) => `https://github.com/snehaakumaran/${name}`;
@@ -124,8 +126,10 @@ export const projects: Project[] = [
     kind: 'bi',
     title: 'MyPaper Accounts Receivable Dashboard',
     short: 'Accounts receivable dashboard',
-    overview: 'A business-intelligence dashboard built around accounts receivable for MyPaper.',
-    tech: ['Dashboard'],
+    overview:
+      'An accounts receivable dashboard for MyPaper: amount paid, largest amount paid and average days overdue, amount paid per month, disputed invoices and an invoice-level detail table, filterable by customer.',
+    tech: ['Tableau', 'Dashboard'],
+    viz: 'mypaper-ar',
   },
   {
     id: 'discountmart',
@@ -133,8 +137,10 @@ export const projects: Project[] = [
     kind: 'bi',
     title: 'Discount Mart Sales Analytics Dashboard',
     short: 'Sales analytics dashboard',
-    overview: 'A sales-analytics dashboard for Discount Mart.',
-    tech: ['Dashboard', 'Sales analytics'],
+    overview:
+      'A sales-analytics dashboard for Discount Mart: sales, profit and quantity for a chosen order year, monthly sales against the average, sales by category, quantity sold and a sales map by state.',
+    tech: ['Tableau', 'Dashboard', 'Sales analytics'],
+    viz: 'discountmart',
   },
   {
     id: 'hr',
@@ -142,8 +148,10 @@ export const projects: Project[] = [
     kind: 'bi',
     title: 'HR Analytics Dashboard',
     short: 'HR analytics dashboard',
-    overview: 'A dashboard for human-resources analytics.',
-    tech: ['Dashboard', 'HR analytics'],
+    overview:
+      'A human-resources dashboard covering employee count, attrition rate, average job satisfaction and average monthly income, broken down by age group, income band and years at the company.',
+    tech: ['Tableau', 'Dashboard', 'HR analytics'],
+    viz: 'hr-analytics',
   },
   {
     id: 'breast-cancer',
@@ -215,6 +223,134 @@ export const projects: Project[] = [
     tech: ['Oracle SQL', 'Lucidchart', 'Data Analysis'],
   },
 ];
+
+/* ── TABLEAU PUBLIC — every published workbook on her profile ──────────────────
+ *  Source: https://public.tableau.com/app/profile/sneha.kumaran/vizzes (7 workbooks,
+ *  read from the profile's own workbook listing). Titles and view paths are exact.
+ *  The workbooks carry no written descriptions, so each `summary` only names what
+ *  is visible on the dashboard itself — its KPI labels, charts and filters.
+ *  `size` is the dashboard's fixed size in Tableau; the viewer scales it to fit.
+ */
+export type VizCategory = 'Sales' | 'Finance' | 'HR' | 'Operations';
+
+export type Viz = {
+  id: string;
+  title: string;
+  /** Tableau Public workbook + sheet path, e.g. "HRAnalytics_16333208033200/Dashboard1". */
+  path: string;
+  category: VizCategory;
+  /** A short label for what the dashboard is about. */
+  domain: string;
+  summary: string;
+  /** What the dashboard is built from — elements visible on it. */
+  features: string[];
+  size: [number, number];
+  featured?: boolean;
+  /** false when Tableau's own preview image is empty (see note). */
+  preview?: boolean;
+  note?: string;
+};
+
+export const tableauProfile = 'https://public.tableau.com/app/profile/sneha.kumaran/vizzes';
+
+export const vizzes: Viz[] = [
+  {
+    id: 'hr-analytics',
+    title: 'HR Analytics',
+    path: 'HRAnalytics_16333208033200/Dashboard1',
+    category: 'HR',
+    domain: 'Human resources · workforce analytics',
+    summary:
+      'Employee count, attrition rate, average job satisfaction and average monthly income, with attrition broken down by age group, income band and years at the company.',
+    features: ['KPI summary', 'Histograms', 'Deviation from average', 'Attrition split'],
+    size: [1300, 927],
+    featured: true,
+  },
+  {
+    id: 'mypaper-ar',
+    title: 'MyPaper Accounts Receivable Dashboard',
+    path: 'MyPaperAccountsReceivableDashboard_16414445732630/AccountsReceivableDashboard',
+    category: 'Finance',
+    domain: 'Finance · accounts receivable',
+    summary:
+      'Amount paid, largest amount paid and average days overdue, the amount paid per month, disputed invoices, and an invoice-level detail table — all filterable by customer.',
+    features: ['KPI summary', 'Monthly trend', 'Detail table', 'Customer filter'],
+    size: [1100, 677],
+    featured: true,
+  },
+  {
+    id: 'superstore-agents',
+    title: 'SuperStore Sales Agent Analytics',
+    path: 'SuperStoreSalesAgentAnalytics_16536118484980/Dashboard1',
+    category: 'Sales',
+    domain: 'Sales · agent performance',
+    summary:
+      'Sales and growth for a chosen date range, with sales by month, by sales agent, by category and sub-category, and the top five products.',
+    features: ['KPI summary', 'Date-range filter', 'Ranked bars', 'Top-N products'],
+    size: [1300, 927],
+    featured: true,
+  },
+  {
+    id: 'discountmart',
+    title: 'DiscountMart',
+    path: 'DiscountMart_16332455705760/Dashboard1',
+    category: 'Sales',
+    domain: 'Sales · retail analytics',
+    summary:
+      'Discount Mart sales analytics: sales, profit and quantity for a chosen order year, monthly sales against the average, sales by category, quantity sold and a sales map by state.',
+    features: ['KPI summary', 'Year filter', 'Reference line', 'Map'],
+    size: [1300, 927],
+  },
+  {
+    id: 'northwind-shipping',
+    title: 'Northwind - Shipping Analytics',
+    path: 'Northwind-ShippingAnalytics_16541130063770/NorthWindDashboard',
+    category: 'Operations',
+    domain: 'Operations · shipping and logistics',
+    summary:
+      'Total orders, orders not shipped and the share not shipped for a chosen order month, with orders by product category, daily shipped and unshipped trends, and unshipped orders by country.',
+    features: ['KPI summary', 'Month filter', 'Stacked bars', 'Map'],
+    size: [1300, 927],
+  },
+  {
+    id: 'tesla-stock',
+    title: 'Tesla - Stock Price',
+    path: 'Tesla-StockPrice_16541978245300/TeslaDashboard',
+    category: 'Finance',
+    domain: 'Finance · stock market',
+    summary:
+      'Daily close price, volume traded, daily high and low, and the percentage change between open and close, with highest and lowest price, driven by a date filter.',
+    features: ['Time series', 'Relative-date filter', 'KPI summary'],
+    size: [1300, 927],
+    preview: false,
+    note: 'The Date filter is relative to today, so it opens empty. Choose Years → Last 8 years in the filter to see the price history.',
+  },
+  {
+    id: 'ait580-demo',
+    title: 'AIT 580 - Demo',
+    path: 'AIT580-Demo/Dashboard1',
+    category: 'Sales',
+    domain: 'Sales · profit by geography',
+    summary:
+      'Profit ratio by U.S. state on a map, filterable by region and profit-ratio range, above sales over time split by whether orders were profitable.',
+    features: ['Filled map', 'Region filter', 'Range slider', 'Area chart'],
+    size: [1000, 827],
+  },
+];
+
+export const vizCategories: VizCategory[] = ['Sales', 'Finance', 'HR', 'Operations'];
+
+const TP = 'https://public.tableau.com';
+/** Live, interactive view for the iframe. */
+export const vizEmbedUrl = (v: Viz) =>
+  `${TP}/views/${v.path}?:embed=y&:showVizHome=no&:display_count=n&:tabs=n&:toolbar=bottom&:language=en-US&:origin=viz_share_link`;
+/** The visualization's page on Tableau Public. */
+export const vizPageUrl = (v: Viz) => `${TP}/app/profile/sneha.kumaran/viz/${v.path}`;
+/** Tableau's own static preview image for the view. */
+export const vizImageUrl = (v: Viz) => {
+  const [wb, sheet] = v.path.split('/');
+  return `${TP}/static/images/${wb.slice(0, 2)}/${wb}/${sheet}/1.png`;
+};
 
 /* ── DATA STACK — no proficiency levels ─────────────────────────────────────── */
 export type StackGroup = { id: string; label: string; note: string; items: { name: string; note: string }[] };
@@ -308,6 +444,7 @@ export const deansList = [
 ];
 
 /* ── CERTIFICATIONS — only what the profile documents ───────────────────────── */
+// Issuer / year are kept as data but not displayed (not documented for every entry).
 export const certifications: { name: string; issuer?: string; year?: string }[] = [
   { name: 'Microsoft Dynamics 365 (CRM) & Power Platform Training', issuer: 'Udemy', year: '2024' },
   { name: 'The Complete Prompt Engineering for AI Bootcamp', issuer: 'Udemy', year: '2023' },

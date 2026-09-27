@@ -18,8 +18,6 @@ export function Certifications() {
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Certification</th>
-                <th scope="col">Issuer</th>
-                <th scope="col">Year</th>
               </tr>
             </thead>
             <tbody>
@@ -27,8 +25,6 @@ export function Certifications() {
                 <tr key={c.name} style={{ ['--i' as string]: i }}>
                   <td className="r-i">{String(i + 1).padStart(2, '0')}</td>
                   <td className="r-name">{c.name}</td>
-                  <td className="r-issuer">{c.issuer ?? <span className="r-null">—</span>}</td>
-                  <td className="r-year">{c.year ?? <span className="r-null">—</span>}</td>
                 </tr>
               ))}
             </tbody>
