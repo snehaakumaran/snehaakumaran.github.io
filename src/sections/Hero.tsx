@@ -28,6 +28,11 @@ export function Hero() {
             <Magnetic className="btn btn-line" href={links.linkedin} target="_blank" rel="noreferrer">
               View LinkedIn <span aria-hidden="true">↗</span>
             </Magnetic>
+            {links.github && (
+              <Magnetic className="btn btn-line" href={links.github} target="_blank" rel="noreferrer">
+                GitHub <span aria-hidden="true">↗</span>
+              </Magnetic>
+            )}
           </div>
         </div>
         <ol className="hero-flow" aria-label="How the site is organised">

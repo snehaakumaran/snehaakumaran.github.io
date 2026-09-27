@@ -7,3 +7,6 @@ dist/
 Thumbs.db
 .env
 .env.*
+
+# Separate repo: snehaakumaran/snehaakumaran (GitHub profile README)
+github-profile/
