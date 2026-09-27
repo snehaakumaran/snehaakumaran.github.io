@@ -1,7 +1,29 @@
 import { useMemo, useState } from 'react';
-import { stack } from '../content';
+import { proof, stack, type Proof } from '../content';
 import { Heading, Reveal } from '../components/Section';
+import { useProjects } from '../components/projectsContext';
 import { lab } from '../lib/lab';
+
+/** Links from a skill to the work on this site that shows it. */
+function ProofLinks({ name }: { name: string }) {
+  const { open } = useProjects();
+  const items = proof[name];
+  if (!items) return null;
+  const go = (p: Proof) => {
+    if (p.project) open(p.project);
+    else if (p.href) document.querySelector(p.href)?.scrollIntoView({ behavior: lab.reducedMotion ? 'auto' : 'smooth' });
+  };
+  return (
+    <span className="proof">
+      <span className="proof-k">Seen in</span>
+      {items.map((p) => (
+        <button key={p.label} type="button" className="proof-link" onClick={() => go(p)} aria-haspopup={p.project ? 'dialog' : undefined}>
+          {p.label} <span aria-hidden="true">→</span>
+        </button>
+      ))}
+    </span>
+  );
+}
 
 type Hot = { group: string; item?: string } | null;
 
@@ -15,7 +37,11 @@ const CY = H / 2;
  * tools around each group. No proficiency levels — only what's on the profile.
  */
 export function DataStack() {
-  const [hot, setHot] = useState<Hot>(null);
+  const [hover, setHover] = useState<Hot>(null);
+  // Clicking a skill pins it, so its "Seen in" links stay clickable.
+  const [pinned, setPinned] = useState<Hot>(null);
+  const [mobilePick, setMobilePick] = useState<string | null>(null);
+  const hot = hover ?? pinned;
   // Hand-tuned hub positions so every label has room (viewBox 1000 × 640).
   const HUBS: Record<string, { x: number; y: number; a: number }> = {
     analytics: { x: 500, y: 128, a: -Math.PI / 2 },
@@ -45,8 +71,13 @@ export function DataStack() {
   }, []);
 
   const set = (h: Hot) => {
-    setHot(h);
-    lab.focus = h ? 0.6 : 0;
+    setHover(h);
+    lab.focus = h || pinned ? 0.6 : 0;
+  };
+  const pin = (h: Hot) => {
+    const same = pinned && h && pinned.group === h.group && pinned.item === h.item;
+    setPinned(same ? null : h);
+    lab.focus = same ? 0 : 0.6;
   };
   const group = layout.find((g) => g.id === hot?.group);
   const item = group?.items.find((i) => i.name === hot?.item);
@@ -54,7 +85,7 @@ export function DataStack() {
   return (
     <section id="skills" className="section" aria-labelledby="skills-title">
       <div className="wrap">
-        <Heading id="skills-title" index="04" kicker="Data stack" title={<>The tools, <em>connected.</em></>} lede={<>Every tool connects back to data analytics. <span className="only-pointer">Hover or focus a node to trace it.</span></>} />
+        <Heading id="skills-title" index="04" kicker="Data stack" title={<>The tools, <em>connected.</em></>} lede={<>Every tool connects back to data analytics. <span className="only-pointer">Hover to trace a tool; click one to see where it’s used.</span><span className="only-touch">Tap a highlighted tool to see where it’s used.</span></>} />
 
         <Reveal variant="scale" className="stack">
           <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true" className="stack-svg">
@@ -84,6 +115,7 @@ export function DataStack() {
                 onMouseLeave={() => set(null)}
                 onFocus={() => set({ group: g.id })}
                 onBlur={() => set(null)}
+                onClick={() => pin({ group: g.id })}
                 aria-describedby="st-note"
               >
                 {g.label}
@@ -92,12 +124,14 @@ export function DataStack() {
                 <button
                   key={it.name}
                   type="button"
-                  className={`st-leaf ${hot?.item === it.name ? 'is-hot' : ''} ${hot && hot.group !== g.id ? 'is-dim' : ''}`}
+                  className={`st-leaf ${hot?.item === it.name ? 'is-hot' : ''} ${hot && hot.group !== g.id ? 'is-dim' : ''} ${proof[it.name] ? 'has-proof' : ''} ${pinned?.item === it.name ? 'is-pinned' : ''}`}
                   style={{ left: `${(it.x / W) * 100}%`, top: `${(it.y / H) * 100}%` }}
                   onMouseEnter={() => set({ group: g.id, item: it.name })}
                   onMouseLeave={() => set(null)}
                   onFocus={() => set({ group: g.id, item: it.name })}
                   onBlur={() => set(null)}
+                  onClick={() => pin({ group: g.id, item: it.name })}
+                  aria-pressed={pinned?.item === it.name}
                   aria-describedby="st-note"
                 >
                   {it.name}
@@ -109,6 +143,7 @@ export function DataStack() {
             {item ? (
               <>
                 <strong>{item.name}</strong> · {item.note}
+                {proof[item.name] && (pinned?.item === item.name ? <ProofLinks name={item.name} /> : <span className="proof-hint">Click to see where it’s used</span>)}
               </>
             ) : group ? (
               <>
@@ -129,10 +164,24 @@ export function DataStack() {
                 <span>{g.note}</span>
               </p>
               <ul>
-                {g.items.map((it) => (
-                  <li key={it.name}>{it.name}</li>
-                ))}
+                {g.items.map((it) =>
+                  proof[it.name] ? (
+                    <li key={it.name}>
+                      <button type="button" className="sl-btn" aria-pressed={mobilePick === it.name} onClick={() => setMobilePick(mobilePick === it.name ? null : it.name)}>
+                        {it.name}
+                      </button>
+                    </li>
+                  ) : (
+                    <li key={it.name}>{it.name}</li>
+                  ),
+                )}
               </ul>
+              {mobilePick && g.items.some((it) => it.name === mobilePick) && (
+                <p className="sl-proof" aria-live="polite">
+                  <strong>{mobilePick}</strong>
+                  <ProofLinks name={mobilePick} />
+                </p>
+              )}
             </div>
           ))}
         </div>

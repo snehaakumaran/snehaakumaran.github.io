@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState, type PointerEvent } from 'react';
+import { lab } from '../lib/lab';
 import { tableauProfile, vizCategories, vizPageUrl, vizzes, type Viz, type VizCategory } from '../content';
 import { Heading, Reveal } from '../components/Section';
 import { useProjects } from '../components/projectsContext';
@@ -9,8 +10,30 @@ const capabilities = ['Business Intelligence', 'Data Visualization', 'Tableau', 
 /** A dashboard card. The whole card opens the viewer; the Tableau link stays separate. */
 function VizCard({ viz, variant }: { viz: Viz; variant: 'feature' | 'row' }) {
   const { openViz } = useProjects();
+  const ref = useRef<HTMLElement>(null);
+  // A gentle 3D tilt and light that follow the mouse. Off for touch and calm mode.
+  const tilt = (e: PointerEvent<HTMLElement>) => {
+    const el = ref.current;
+    if (!el || lab.reducedMotion || e.pointerType !== 'mouse') return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    const amp = variant === 'feature' ? 5 : 2.5;
+    el.style.setProperty('--rx', `${(0.5 - y) * amp}deg`);
+    el.style.setProperty('--ry', `${(x - 0.5) * amp}deg`);
+    el.style.setProperty('--mx', `${x * 100}%`);
+    el.style.setProperty('--my', `${y * 100}%`);
+    el.classList.add('is-tilt');
+  };
+  const reset = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.classList.remove('is-tilt');
+    el.style.removeProperty('--rx');
+    el.style.removeProperty('--ry');
+  };
   return (
-    <article className={`viz-card viz-${variant}`}>
+    <article ref={ref} className={`viz-card viz-${variant}`} onPointerMove={tilt} onPointerLeave={reset}>
       <div className="viz-media">
         <VizPreview viz={viz} />
       </div>
@@ -88,6 +111,17 @@ export function BIDashboards() {
             })}
           </div>
         </div>
+        <p className="viz-query" aria-hidden="true">
+          <span className="q-k">SELECT</span> title, category <span className="q-k">FROM</span> tableau_public
+          {filter !== 'All' && (
+            <>
+              {' '}
+              <span className="q-k">WHERE</span> category = <span className="q-s">'{filter}'</span>
+            </>
+          )}
+          ; <span className="q-c">-- {shown.length} {shown.length === 1 ? 'row' : 'rows'}</span>
+          <span className="q-caret" />
+        </p>
         <p className="sr-only" aria-live="polite">
           Showing {shown.length} {shown.length === 1 ? 'dashboard' : 'dashboards'}
           {filter === 'All' ? '' : ` in ${filter}`}.

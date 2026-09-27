@@ -549,6 +549,12 @@ main:focus {
   transform: none;
   clip-path: inset(0 0 0 0);
 }
+/* Only the wipe needs clipping; elsewhere it would hide overflowing content
+   (e.g. the Skills note that sits below the network). */
+.rv-rise.is-in,
+.rv-scale.is-in {
+  clip-path: none;
+}
 
 /* ─── Chips / tags ─────────────────────────────────────────────────────────── */
 .chips,
@@ -1250,6 +1256,28 @@ main:focus {
   transform: translateY(-4px);
   box-shadow: 0 26px 60px -34px rgba(76, 201, 240, 0.55);
 }
+/* Mouse tilt: set by JS while the pointer is over the card. */
+.viz-card.is-tilt {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-4px);
+  transition:
+    border-color 0.3s,
+    transform 0.12s linear,
+    box-shadow 0.4s var(--ease);
+}
+.viz-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(201, 182, 255, 0.14), transparent 45%);
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+.viz-card.is-tilt::before {
+  opacity: 1;
+}
 .viz-card:focus-within {
   border-color: rgba(76, 201, 240, 0.6);
 }
@@ -1418,6 +1446,43 @@ main:focus {
   font-size: 11px;
   font-weight: 500;
   opacity: 0.7;
+}
+.viz-query {
+  margin: -4px 0 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(7, 10, 18, 0.55);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-2);
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+.q-k {
+  color: var(--lavender);
+  font-weight: 500;
+}
+.q-s {
+  color: var(--cyan);
+}
+.q-c {
+  color: var(--ink-3);
+}
+.q-caret {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  margin-left: 6px;
+  vertical-align: -2px;
+  background: var(--cyan);
+  animation: caret 1.1s steps(1) infinite;
+}
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
 }
 .viz-list {
   display: grid;
@@ -1922,6 +1987,90 @@ main:focus {
 }
 .st-note strong {
   color: var(--ink);
+}
+.st-leaf.has-proof::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+.st-leaf.is-pinned {
+  border-color: var(--lavender);
+  background: rgba(201, 182, 255, 0.16);
+  color: var(--ink);
+}
+.proof {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 8px;
+  margin-top: 10px;
+}
+.proof-k {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.proof-link {
+  display: inline-flex;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(76, 201, 240, 0.4);
+  background: rgba(76, 201, 240, 0.08);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--cyan);
+  cursor: pointer;
+  transition:
+    background 0.25s,
+    border-color 0.25s;
+}
+.proof-link:hover,
+.proof-link:focus-visible {
+  background: rgba(76, 201, 240, 0.18);
+  border-color: var(--cyan);
+}
+.proof-hint {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--cyan);
+}
+.sl-btn {
+  padding: 0;
+  font-size: inherit;
+  color: var(--ink);
+  cursor: pointer;
+}
+.sl-btn::after {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 6px;
+  vertical-align: 2px;
+  border-radius: 50%;
+  background: var(--cyan);
+}
+.sl-proof {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 13.5px;
+}
+.sl-proof .proof {
+  justify-content: flex-start;
+  margin-top: 8px;
 }
 .stack-list {
   display: none;
@@ -2483,6 +2632,10 @@ main:focus {
     flex-wrap: wrap;
     gap: 6px;
   }
+  .sl-group li:has(.sl-btn[aria-pressed='true']) {
+    border-color: var(--cyan);
+    background: rgba(76, 201, 240, 0.12);
+  }
   .sl-group li {
     padding: 5px 10px;
     border-radius: 7px;
@@ -2609,6 +2762,9 @@ html.calm .heading .lede {
   .stack-list ~ .only-pointer,
   #skills .only-pointer {
     display: none;
+  }
+  #skills .only-touch {
+    display: inline;
   }
 }
 @media (max-width: 760px) {

@@ -416,6 +416,36 @@ export const stack: StackGroup[] = [
   },
 ];
 
+/* ── SKILL → PROOF ────────────────────────────────────────────────────────────
+ *  Where a skill can be seen in the work on this site. Model and language entries
+ *  come from the code in each linked repository; SQL / Lucidchart / Data Analysis
+ *  from the Ticketing project's listed technologies. Skills with no public work
+ *  to point to are simply left out.
+ */
+export type Proof = { label: string; project?: string; href?: string };
+const P = (id: string): Proof => ({ project: id, label: projects.find((p) => p.id === id)?.node ?? id });
+const DASHBOARDS: Proof = { label: `${vizzes.length} Tableau dashboards`, href: '#bi' };
+
+export const proof: Record<string, Proof[]> = {
+  Tableau: [DASHBOARDS],
+  'Data Visualization': [DASHBOARDS],
+  SQL: [P('ticketing')],
+  'Oracle SQL': [P('ticketing')],
+  'Data Analysis': [P('ticketing')],
+  Lucidchart: [P('ticketing')],
+  Python: [P('breast-cancer'), P('heart-failure'), P('airbnb'), P('dc-homes'), P('tweets')],
+  R: [P('heart-failure')],
+  'Jupyter Notebook': [P('breast-cancer'), P('heart-failure'), P('airbnb'), P('tweets')],
+  'Random Forest': [P('breast-cancer'), P('dc-homes'), P('airbnb')],
+  'Logistic Regression': [P('breast-cancer'), P('heart-failure')],
+  'Decision Tree': [P('breast-cancer'), P('dc-homes')],
+  'K-Nearest Neighbors': [P('breast-cancer'), P('heart-failure')],
+  'Naive Bayes': [P('breast-cancer')],
+  'Linear Regression': [P('dc-homes'), P('airbnb')],
+  'K-Means Clustering': [P('heart-failure')],
+  'Natural Language Processing': [P('tweets')],
+};
+
 /* ── ACADEMIC FOUNDATION ────────────────────────────────────────────────────── */
 export const education = [
   {
